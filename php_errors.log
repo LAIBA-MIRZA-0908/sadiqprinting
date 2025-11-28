@@ -1,0 +1,41 @@
+[21-Nov-2025 09:55:15 Europe/Berlin] Received data: Array
+(
+    [action] => create_job_order
+    [OrderDate] => 2025-11-21
+    [DeliveryDate] => 2025-11-21
+    [DesignBy] => Fresh
+    [JobFor] => New Client
+    [CustomerName] => laiba
+    [CustomerID] => 25
+    [CellNo] => 09390
+    [Designer] => administrator
+    [DesignerID] => 1
+    [AdvancePayment] => 0.00
+    [details] => Array
+        (
+            [0] => Array
+                (
+                    [SrNo] => 1
+                    [Detail] => wjl
+                    [Media] => Cross Banner
+                    [Width] => 3
+                    [Height] => 4
+                    [Qty] => 3
+                    [Sqft] => 36
+                    [Ring] => 1
+                    [Pocket] => 1
+                )
+
+        )
+
+)
+
+[21-Nov-2025 09:55:15 Europe/Berlin] Details received from client: 1
+[21-Nov-2025 09:55:15 Europe/Berlin] Job Order Query: INSERT INTO job_orders (CustomerID,OrderDate, DeliveryDate, DesignBy, JobFor, CustomerName, CellNo, Designer, DesignerID,AdvancePayment) 
+                        VALUES (?,?, ?, ?, ?, ?, ?, ?, ?,?)
+[21-Nov-2025 09:55:15 Europe/Berlin] Parameters: 252025-11-21, 2025-11-21, Fresh, New Client, laiba, 09390, administrator, 0
+[21-Nov-2025 09:55:15 Europe/Berlin] Inserted Job Order No: 54
+[21-Nov-2025 09:55:15 Europe/Berlin] Detail Query: INSERT INTO job_order_details (JobOrderNo, SrNo, Detail, Media, Width, Height, Qty, Sqft, Ring, Pocket) 
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+[21-Nov-2025 09:55:15 Europe/Berlin] Detail Parameters: 54, 1, wjl, Cross Banner, 3, 4, 3, 36, 1, 1
+[21-Nov-2025 09:55:15 Europe/Berlin] Converted Parameters: 54, 1, wjl, Cross Banner, 3, 4, 3, 36, 1, 1

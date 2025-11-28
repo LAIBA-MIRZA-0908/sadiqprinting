@@ -1,0 +1,497 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+// add_job_order.php
+include 'header.php';
+include 'menu.php';
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Job Order</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .numeric-input {
+            text-align: right;
+        }
+        .checkbox-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .table-responsive {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Add New Job Order</h1>
+                <p class="text-gray-600">Create job order with multiple details</p>
+            </div>
+            <div>
+                <a href="job_orders_list.php" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm flex items-center">
+                    <i class="fas fa-list mr-2"></i> View Job Orders
+                </a>
+            </div>
+        </div>
+
+        <!-- Job Order Form -->
+        <form id="jobOrderForm">
+            <!-- Job Order Header -->
+            <div class="bg-white rounded-lg shadow-md mb-6">
+                <div class="bg-blue-600 text-white px-6 py-4 rounded-t-lg">
+                    <h3 class="text-lg font-semibold flex items-center">
+                        <i class="fas fa-file-invoice mr-2"></i>Job Order Header
+                    </h3>
+                </div>
+                <div class="p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Job Order No</label>
+                            <input type="text" id="JobOrderNo" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Order Date *</label>
+                            <input type="date" id="OrderDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div style="display:none">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Delivery Date *</label>
+                            <input type="date" id="DeliveryDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div  style="display:none">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Design By *</label>
+                            <div class="flex space-x-4">
+                                <div class="flex items-center">
+                                    <input type="radio" name="DesignBy" id="DesignByClient" value="Client" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required>
+                                    <label for="DesignByClient" class="ml-2 block text-sm text-gray-700">Client</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" name="DesignBy" id="DesignByFresh" value="Fresh" class="h-4 w-4 text-blue-600 focus:ring-blue-500" checked required>
+                                    <label for="DesignByFresh" class="ml-2 block text-sm text-gray-700">Fresh</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Job For *</label>
+                            <select id="JobFor" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="New Client">New Client</option>
+                                <option value="Existing Client">Existing Client</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Customer Name *</label>
+                            <input type="text" id="CustomerName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <input type="hidden" id="CustomerID" name="CustomerID">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Cell No *</label>
+                            <input type="text" id="CellNo" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Designer</label>
+                            <input type="text" id="Designer" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Advance Payment</label>
+                            <input type="number" id="AdvancePayment" class="w-full px-3 py-2 border border-gray-300 rounded-md numeric-input focus:ring-blue-500 focus:border-blue-500" 
+                                   step="0.01" value="0.00">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Order Details -->
+            <div class="bg-white rounded-lg shadow-md mb-6">
+                <div class="bg-green-600 text-white px-6 py-4 rounded-t-lg flex justify-between items-center">
+                    <h3 class="text-lg font-semibold flex items-center">
+                        <i class="fas fa-list-alt mr-2"></i>Job Order Details
+                    </h3>
+                    <button type="button" class="bg-white text-green-600 px-3 py-1 rounded text-sm font-medium hover:bg-gray-100" onclick="addDetailRow()">
+                        <i class="fas fa-plus mr-1"></i> Add Row
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="table-responsive overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 border border-gray-300" id="detailsTable">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">Sr#</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40" >Detail</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Media</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Width</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Height</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Qty</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Sqft</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">Ring</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">Pocket</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailsTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Dynamic rows will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex justify-end space-x-3">
+                <button type="button" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg text-sm" onclick="resetForm()">
+                    <i class="fas fa-times mr-2"></i> Cancel
+                </button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                    <i class="fas fa-save mr-2"></i> Save Job Order
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center pb-3 border-b">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>Success
+                    </h3>
+                    <button onclick="closeSuccessModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="mt-4 px-7 py-3">
+                    <p class="text-sm text-gray-500">Job Order saved successfully!</p>
+                    <p class="text-sm text-gray-500 font-medium" id="jobOrderNumber"></p>
+                </div>
+                <div class="flex justify-end space-x-3 mt-4 pt-4 border-t">
+                    <button onclick="resetForm(); closeSuccessModal();" class="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md hover:bg-blue-700 focus:outline-none">
+                        Add New Order
+                    </button>
+                    <a href="job_orders_list.php" class="px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md hover:bg-gray-300 focus:outline-none">
+                        View Orders
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- Customer Selection Modal -->
+<div id="customerModal" class="fixed inset-0 bg-gray-700 bg-opacity-50 hidden z-50">
+  <div class="relative top-20 mx-auto bg-white rounded-lg shadow-xl w-11/12 md:w-3/4 lg:w-1/2 max-h-[80vh] overflow-hidden">
+    <div class="flex justify-between items-center bg-blue-600 text-white px-4 py-3 rounded-t-lg">
+      <h3 class="text-lg font-semibold"><i class="fas fa-users mr-2"></i>Select Existing Customer</h3>
+      <button onclick="closeCustomerModal()" class="text-white hover:text-gray-200">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="p-4 overflow-y-auto" style="max-height: 60vh;">
+      <table class="min-w-full divide-y divide-gray-200 border border-gray-300">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+          </tr>
+        </thead>
+        <tbody id="customerTableBody" class="bg-white divide-y divide-gray-200">
+          <!-- Filled dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        var detailRowCount = 0;
+        var materials = [];
+
+        $(document).ready(function() {
+            // Set today's date
+          // Set today's date for both Order and Delivery Date
+const today = new Date().toISOString().split('T')[0];
+$('#OrderDate').val(today);
+$('#DeliveryDate').val(today);
+            
+            // Generate Job Order No
+            generateJobOrderNo();
+            
+            // Load materials
+            loadMaterials();
+            
+            // Add first detail row
+            addDetailRow();
+            
+            // Form submission
+            $('#jobOrderForm').submit(function(e) {
+                e.preventDefault();
+                submitJobOrder();
+            });
+            
+            // alert(detailRowCount);
+            if (detailRowCount === 1) {
+                for (var i = 1; i <= 7; i++) {
+                    addDetailRow();
+                }
+            }
+        });
+
+      //  function generateJobOrderNo() {
+      //      var timestamp = new Date().getTime();
+       //     var random = Math.floor(Math.random() * 1000);
+      //      $('#JobOrderNo').val('JO-' + timestamp + '-' + random);
+       // }
+       function generateJobOrderNo() {
+    // format date part as ddmmyyyy
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+    var yyyy = today.getFullYear();
+    var datePart = dd + mm + yyyy;
+
+    // Ask server for how many job orders exist today
+    $.ajax({
+        url: 'job_order_functions.php',
+        type: 'POST',
+        data: { action: 'get_today_count' },
+        dataType: 'json',
+        success: function(response) {
+            if (response && response.success) {
+                // server returned count of existing orders today
+                var countToday = parseInt(response.count, 10) || 0;
+                var nextNumber = countToday + 1; // increment for this new order
+                $('#JobOrderNo').val('JB-' + datePart + '-' + nextNumber);
+            } else {
+                // fallback: if server fails, still set something sensible
+                $('#JobOrderNo').val('JB-' + datePart + '-1');
+                console.error('Failed to get today count:', response ? response.message : 'no response');
+            }
+        },
+        error: function(xhr, status, err) {
+            // fallback if ajax fails
+            $('#JobOrderNo').val('JB-' + datePart + '-1');
+            console.error('AJAX error fetching today count:', status, err);
+        }
+    });
+}
+
+
+        function loadMaterials() {
+            $.ajax({
+                url: 'job_order_functions.php',
+                type: 'POST',
+                data: { action: 'get_materials' },
+                dataType: 'json',
+                success: function(data) {
+                    if (data.success) {
+                        materials = data.materials;
+                        updateMaterialDropdowns();
+                    }
+                },
+                error: function() {
+                    console.error('Failed to load materials');
+                }
+            });
+        }
+
+        function updateMaterialDropdowns() {
+            $('.media-select').each(function() {
+                var currentValue = $(this).val();
+                $(this).empty().append('<option value="">Select Media</option>');
+                
+                for (var i = 0; i < materials.length; i++) {
+                    $(this).append('<option value="' + materials[i].name + '">' + materials[i].name + '</option>');
+                }
+                
+                $(this).val(currentValue);
+            });
+        }
+
+        function addDetailRow() {
+            detailRowCount++;
+            var row = '<tr id="detailRow-' + detailRowCount + '">' +
+                '<td class="px-4 py-2 whitespace-nowrap"><input type="text" class="w-full px-2 py-1 border border-gray-300 rounded text-center bg-gray-100" value="' + detailRowCount + '" readonly></td>' +
+                '<td class="px-4 py-2"><input type="text" name="Detail[]" class="w-full px-2 py-1 border border-gray-300 rounded" placeholder="Enter detail"></td>' +
+                '<td class="px-4 py-2"><select name="Media[]" class="w-full px-2 py-1 border border-gray-300 rounded media-select"><option value="">Select Media</option></select></td>' +
+                '<td class="px-4 py-2"><input type="number" name="Width[]" class="w-full px-2 py-1 border border-gray-300 rounded numeric-input" step="1" value="0" onchange="calculateSqft(' + detailRowCount + ')"></td>' +
+                '<td class="px-4 py-2"><input type="number" name="Height[]" class="w-full px-2 py-1 border border-gray-300 rounded numeric-input" step="1" value="0" onchange="calculateSqft(' + detailRowCount + ')"></td>' +
+                '<td class="px-4 py-2"><input type="number" name="Qty[]" class="w-full px-2 py-1 border border-gray-300 rounded numeric-input text-center" value="1" onchange="calculateSqft(' + detailRowCount + ')"></td>' +
+                '<td class="px-4 py-2"><input type="number" name="Sqft[]" class="w-full px-2 py-1 border border-gray-300 rounded numeric-input" step="1" value="0" readonly></td>' +
+                '<td class="px-4 py-2"><div class="checkbox-wrapper"><input type="checkbox" name="Ring[]" value="1" class="h-4 w-4 text-blue-600 focus:ring-blue-500"></div></td>' +
+                '<td class="px-4 py-2"><div class="checkbox-wrapper"><input type="checkbox" name="Pocket[]" value="1" class="h-4 w-4 text-blue-600 focus:ring-blue-500"></div></td>' +
+                
+                '</tr>';
+            
+            $('#detailsTableBody').append(row);
+            
+            // Update material dropdown for new row
+            updateMaterialDropdowns();
+        }
+
+        function removeDetailRow(rowId) {
+            $('#detailRow-' + rowId).remove();
+            updateSerialNumbers();
+        }
+
+        function updateSerialNumbers() {
+            $('#detailsTableBody tr').each(function(index) {
+                $(this).find('td:first input').val(index + 1);
+            });
+        }
+
+        function calculateSqft(rowId) {
+            var width = parseFloat($('input[name="Width[]"]').eq(rowId - 1).val()) || 0;
+            var height = parseFloat($('input[name="Height[]"]').eq(rowId - 1).val()) || 0;
+            var qty = parseFloat($('input[name="Qty[]"]').eq(rowId - 1).val()) || 0;
+            var sqft = width * height * qty;
+            
+            $('input[name="Sqft[]"]').eq(rowId - 1).val(sqft.toFixed(2));
+        }
+
+        function submitJobOrder() {
+            // Validate form
+            if (!$('#jobOrderForm')[0].checkValidity()) {
+                $('#jobOrderForm')[0].reportValidity();
+                return;
+            }
+
+            // Check if at least one detail row exists
+            if ($('#detailsTableBody tr').length === 0) {
+                alert('Please add at least one detail row.');
+                return;
+            }
+
+            // Collect form data - REMOVED JobOrderNo since it's auto-generated
+            var formData = {
+                action: 'create_job_order',
+                OrderDate: $('#OrderDate').val(),
+                DeliveryDate: $('#DeliveryDate').val(),
+                DesignBy: $('input[name="DesignBy"]:checked').val(),
+                JobFor: $('#JobFor').val(),
+                CustomerName: $('#CustomerName').val(),
+                CellNo: $('#CellNo').val(),
+                Designer: $('#Designer').val(),
+                AdvancePayment: $('#AdvancePayment').val(),
+                details: []
+            };
+
+            // Collect ONLY VALID detail rows
+            var hasValidRow = false;
+            $('#detailsTableBody tr').each(function(index) {
+                var row = $(this);
+                var Detail = row.find('input[name="Detail[]"]').val().trim();
+                var Media = row.find('select[name="Media[]"]').val();
+                var Width = parseFloat(row.find('input[name="Width[]"]').val()) || 0;
+                var Height = parseFloat(row.find('input[name="Height[]"]').val()) || 0;
+                var Qty = parseFloat(row.find('input[name="Qty[]"]').val()) || 0;
+                var Sqft = parseFloat(row.find('input[name="Sqft[]"]').val()) || 0;
+                
+                // Log each row for debugging
+                console.log('Checking Row ' + (index + 1) + ':', {
+                    Detail: Detail,
+                    Media: Media,
+                    Width: Width,
+                    Height: Height,
+                    Qty: Qty,
+                    Sqft: Sqft,
+                    isValid: (Detail && Media && Width > 0 && Height > 0 && Qty > 0)
+                });
+                
+                // ONLY include rows where ALL required fields are filled AND have valid values
+                if (Detail && Media && Width > 0 && Height > 0 && Qty > 0) {
+                    hasValidRow = true;
+                    formData.details.push({
+                        SrNo: index + 1,
+                        Detail: Detail,
+                        Media: Media,
+                        Width: Width,
+                        Height: Height,
+                        Qty: Qty,
+                        Sqft: Sqft,
+                        Ring: row.find('input[name="Ring[]"]').is(':checked') ? 1 : 0,
+                        Pocket: row.find('input[name="Pocket[]"]').is(':checked') ? 1 : 0
+                    });
+                    console.log('Added valid row to formData:', formData.details[formData.details.length - 1]);
+                }
+            });
+
+            console.log('Final formData being sent:', formData);
+            console.log('Total valid rows:', formData.details.length);
+
+            if (!hasValidRow) {
+                alert('Please add at least one complete detail row with all required fields (Detail, Media, Width, Height, and Qty).');
+                return;
+            }
+
+            // Submit to server
+            $.ajax({
+                url: 'job_order_functions.php',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(data) {
+                    console.log('Server response:', data);
+                    if (data.success) {
+                        $('#jobOrderNumber').text('Job Order No: ' + data.JobOrderNo + 
+                                                 (data.detailsSaved ? ' (' + data.detailsSaved + ' details saved)' : ''));
+                        showSuccessModal();
+                    } else {
+                        alert('Error: ' + (data.message || 'Unknown error occurred'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                    console.log('Response Text:', xhr.responseText);
+                    console.log('Status Code:', xhr.status);
+                    
+                    // Try to parse the response to see what's actually being returned
+                    try {
+                        const responseText = xhr.responseText;
+                        if (responseText.length === 0) {
+                            alert('Server returned empty response. Check PHP error logs.');
+                        } else if (responseText.includes('<br />') || responseText.includes('<b>')) {
+                            alert('Server error: PHP error detected. Check console for details.');
+                            console.error('PHP Error Response:', responseText);
+                        } else {
+                            alert('Network error occurred. Please try again.');
+                        }
+                    } catch (e) {
+                        alert('Network error occurred. Please try again.');
+                    }
+                }
+            });
+        }
+
+        function resetForm() {
+            $('#jobOrderForm')[0].reset();
+            $('#OrderDate').val(new Date().toISOString().split('T')[0]);
+            $('#DesignByFresh').prop('checked', true);
+            $('#AdvancePayment').val('0.00');
+            $('#detailsTableBody').empty();
+            detailRowCount = 0;
+            generateJobOrderNo();
+            addDetailRow();
+            
+            // Hide modal if shown
+            closeSuccessModal();
+        }
+        
+        function showSuccessModal() {
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+        
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
