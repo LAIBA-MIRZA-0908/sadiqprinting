@@ -24,8 +24,30 @@ function fmt($x){ return number_format((float)$x,2); }
 <html>
 <head>
     <title>Job Order Summary Report</title>
+
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- jQuery (Required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Select2 minimal Tailwind-friendly style -->
     <style>
+        .select2-container .select2-selection--single {
+            height: 42px !important;
+            padding: 6px 10px !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 0.375rem !important;
+        }
+        .select2-selection__rendered {
+            line-height: 30px !important;
+        }
+        .select2-selection__arrow {
+            height: 42px !important;
+        }
+
         @page { size: A4; margin: 17mm; }
 
         @media print {
@@ -68,7 +90,7 @@ function fmt($x){ return number_format((float)$x,2); }
             </div>
             <div>
                 <label class="text-sm text-gray-700">Customer</label>
-                <select name="customer_id" class="border p-2 rounded w-full">
+                <select name="customer_id" id="customerSelect" class="border p-2 rounded w-full">
                     <option value="">All Customers</option>
                     <?php
                     $cs = $conn->query("SELECT CustomerID, CustomerName FROM tblcustomers ORDER BY CustomerName");
@@ -121,7 +143,8 @@ $total_qty = $total_sqft = $total_amount = 0;
             $det = $det_res->fetch_assoc();
             $order_qty = $det['TotalQty'] ?? 0;
             $order_sqft = $det['TotalSqft'] ?? 0;
-            $order_total = $order_qty * $order_sqft; // simple calculation as placeholder
+            $order_total = $order_qty * $order_sqft;
+
             $total_qty += $order_qty;
             $total_sqft += $order_sqft;
             $total_amount += $order_total;
@@ -145,6 +168,22 @@ $total_qty = $total_sqft = $total_amount = 0;
         </tr>
     </tfoot>
 </table>
+
 </div>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    // Enable Select2 for Customer dropdown
+    $(document).ready(function() {
+        $('#customerSelect').select2({
+            placeholder: "All Customers",
+            allowClear: true,
+            width: "100%"
+        });
+    });
+</script>
+
 </body>
 </html>
