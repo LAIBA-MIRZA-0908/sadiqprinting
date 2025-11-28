@@ -13,6 +13,27 @@ include 'menu.php';
  $entries = getAllJournalEntries();
 ?>
 
+<!-- Select2 CSS + jQuery added -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+/* small styling to match Tailwind look */
+.select2-container .select2-selection--single {
+    height: 40px !important;
+    padding: 6px 10px !important;
+    border-radius: 0.375rem !important; /* rounded-md */
+    border: 1px solid #d1d5db !important;
+    background: #fff;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 28px !important;
+}
+.select2-selection__arrow {
+    height: 40px !important;
+    right: 8px;
+}
+.select2-container--open { z-index: 9999; }
+</style>
+
 <style>
     /* Print Styles */
     @media print {
@@ -151,6 +172,11 @@ include 'menu.php';
     </div>
 </div>
 
+<!-- jQuery (required by Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const journalRows = document.getElementById('journalRows');
@@ -171,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td class="p-2">
-                <select name="details[${rowCount}][account_id]" required class="w-full px-2 py-1 border rounded">
+                <select name="details[${rowCount}][account_id]" required class="w-full px-2 py-1 border rounded account-select">
                     <option value="">Select Account</option>
                     ${createAccountOptions()}
                 </select>
@@ -181,12 +207,28 @@ document.addEventListener('DOMContentLoaded', function() {
             <td class="p-2 text-center"><button type="button" class="remove-row-btn text-red-500 hover:text-red-700"><i class="fas fa-times"></i></button></td>
         `;
         journalRows.appendChild(row);
+
+        // Initialize Select2 on the newly added select
+        $(row).find('select.account-select').select2({
+            placeholder: 'Select Account',
+            allowClear: true,
+            width: '100%'
+        });
+
         attachRowListeners(row);
     }
 
     function removeJournalRow(button) {
+        // ensure we destroy select2 instance before removing row to avoid orphaned elements
+        const tr = button.closest('tr');
+        if (!tr) return;
+        const selectEl = tr.querySelector('select.account-select');
+        if (selectEl && $(selectEl).hasClass('select2-hidden-accessible')) {
+            try { $(selectEl).select2('destroy'); } catch (e) { /* ignore */ }
+        }
+
         if (journalRows.children.length > 1) {
-            button.closest('tr').remove();
+            tr.remove();
             updateTotals();
         } else {
             alert('You must have at least one row.');
@@ -194,7 +236,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function attachRowListeners(row) {
-        row.querySelector('.remove-row-btn').addEventListener('click', (e) => removeJournalRow(e.target));
+        // Using closest selectors because button icon might be clicked
+        row.querySelector('.remove-row-btn').addEventListener('click', function(e) {
+            removeJournalRow(this);
+        });
         row.querySelector('.debit-input').addEventListener('input', updateTotals);
         row.querySelector('.credit-input').addEventListener('input', updateTotals);
     }
@@ -244,6 +289,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (result.success) {
                 alert(result.message);
                 journalForm.reset();
+
+                // destroy any select2 instances in rows before clearing
+                document.querySelectorAll('#journalRows select.account-select').forEach(s => {
+                    if ($(s).hasClass('select2-hidden-accessible')) {
+                        try { $(s).select2('destroy'); } catch (e) { /* ignore */ }
+                    }
+                });
+
                 journalRows.innerHTML = ''; // Clear existing rows
                 addJournalRow(); // Add one fresh row
                 updateTotals();
