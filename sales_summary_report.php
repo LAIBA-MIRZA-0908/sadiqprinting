@@ -27,8 +27,28 @@ function fmt($x){ return number_format((float)$x,2); }
     <title>Sales Summary Report</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
-    <style>
+    <!-- jQuery (required by Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
+    <style>
+        /* Small Select2 styling to match Tailwind */
+        .select2-container .select2-selection--single {
+            height: 40px !important;
+            padding: 6px 10px !important;
+            border-radius: 0.375rem !important; /* rounded-md */
+            border: 1px solid #d1d5db !important;
+            background: #fff;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 28px !important;
+        }
+        .select2-selection__arrow {
+            height: 40px !important;
+            right: 8px;
+        }
+        .select2-container--open { z-index: 9999; }
 
           @page { size: A4; margin: 18mm; }
 
@@ -84,13 +104,15 @@ function fmt($x){ return number_format((float)$x,2); }
 
             <div>
                 <label class="text-sm text-gray-600">Customer</label>
-                <select name="customer_id" class="border p-2 rounded w-full">
+                <select name="customer_id" id="customerSelect" class="border p-2 rounded w-full">
                     <option value="">All Customers</option>
                     <?php
                     $cs = $conn->query("SELECT CustomerID, CustomerName FROM tblcustomers ORDER BY CustomerName");
                     while($c = $cs->fetch_assoc()):
                         $sel = ($customer_id == $c['CustomerID']) ? "selected" : "";
-                        echo "<option value='{$c['CustomerID']}' $sel>{$c['CustomerName']}</option>";
+                        $cid = htmlspecialchars($c['CustomerID']);
+                        $cname = htmlspecialchars($c['CustomerName']);
+                        echo "<option value='{$cid}' $sel>{$cname}</option>";
                     endwhile;
                     ?>
                 </select>
@@ -258,6 +280,20 @@ $media_rows = $conn->query($sql2);
     </table>
 
 </div>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    // Initialize Select2 just for customer dropdown
+    $(document).ready(function() {
+        $('#customerSelect').select2({
+            placeholder: "All Customers",
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
 
 </body>
 </html>
