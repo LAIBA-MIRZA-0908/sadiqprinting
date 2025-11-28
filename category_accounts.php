@@ -2,7 +2,7 @@
 // category_accounts.php
 include 'header.php';
 include 'menu.php';
-include 'db_connection.php'; // Include your database connection
+include 'db_connection.php'; // Ensure this defines $conn
 ?>
 
 <!DOCTYPE html>
@@ -13,6 +13,34 @@ include 'db_connection.php'; // Include your database connection
     <title>Category Accounts Assignment</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- jQuery (Select2 needs it) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Custom styling to better match Tailwind -->
+    <style>
+        .select2-container .select2-selection--single {
+            height: 46px !important;
+            padding: 6px 10px;
+            border-radius: 0.5rem !important; /* rounded-lg */
+            border: 1px solid #d1d5db !important; /* border-gray-300 */
+            background: #fff;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 32px !important;
+        }
+        .select2-selection__arrow {
+            height: 46px !important;
+            right: 8px;
+        }
+        /* Ensure select2 dropdown appears above other elements */
+        .select2-container--open {
+            z-index: 9999;
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
     <div class="container mx-auto px-4 py-6">
@@ -41,7 +69,9 @@ include 'db_connection.php'; // Include your database connection
                     
                     if ($result && $result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
-                            echo "<option value='" . $row['id'] . "'>" . htmlspecialchars($row['name']) . "</option>";
+                            $id = htmlspecialchars($row['id']);
+                            $name = htmlspecialchars($row['name']);
+                            echo "<option value='{$id}'>{$name}</option>";
                         }
                     }
                     ?>
@@ -113,7 +143,19 @@ include 'db_connection.php'; // Include your database connection
         <div id="messageContainer" class="hidden fixed top-4 right-4 max-w-sm"></div>
     </div>
 
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
+        // Initialize Select2 for category dropdown
+        $(document).ready(function() {
+            $('#categorySelect').select2({
+                placeholder: "-- Select a Category --",
+                allowClear: true,
+                width: '100%'
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             const categorySelect = document.getElementById('categorySelect');
             const accountAssignmentSection = document.getElementById('accountAssignmentSection');
@@ -123,6 +165,7 @@ include 'db_connection.php'; // Include your database connection
             loadAccounts();
             
             // Handle category selection
+            // Note: Since Select2 triggers change on the underlying select, this event still works
             categorySelect.addEventListener('change', function() {
                 const categoryId = this.value;
                 if (categoryId) {
