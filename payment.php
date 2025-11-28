@@ -60,7 +60,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_payment'])) {
 <head>
     <title>Customer Payment</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Optional: Select2 theme for Bootstrap/Tailwind look (you can skip if not needed) -->
+    <style>
+      /* thora sa style taake Select2 input tailwind jaisa lage */
+      .select2-container .select2-selection--single {
+        height: 42px;
+        padding: 6px 10px;
+        border-radius: 0.375rem; /* rounded-md */
+        border: 1px solid #d1d5db; /* gray-300 */
+      }
+      .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 28px;
+      }
+    </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
 <body class="bg-gray-100">
 
@@ -70,7 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_payment'])) {
     <form method="POST" class="grid grid-cols-3 gap-4">
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Customer</label>
-            <select name="CustomerID" id="CustomerID" class="w-full border rounded-md p-2" required>
+            <!-- Added class select2 and data-placeholder -->
+            <select name="CustomerID" id="CustomerID" class="w-full border rounded-md p-2 select2" required>
                 <option value="">Select Customer</option>
                 <?php
                 $customers = $conn->query("SELECT CustomerID, CustomerName FROM tblcustomers ORDER BY CustomerName ASC");
@@ -140,30 +158,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_payment'])) {
 </div>
 
 <script>
-$('#CustomerID').change(function() {
-    let customerId = $(this).val();
-    if (!customerId) return;
+$(document).ready(function() {
+    // Initialize Select2 on #CustomerID
+    $('#CustomerID').select2({
+        placeholder: 'Select Customer',
+        allowClear: true,
+        width: '100%'
+    });
 
-  $.ajax({
-    url: 'get_customer_history.php',
-    method: 'POST',
-    dataType: 'json',
-    data: { CustomerID: customerId },
-    success: function(res) {
-        $('#customerHistory').html(res.rows);
-        $('#customerBalance').html("Current Balance: <strong>" + res.balance + "</strong>");
-    }
-});
-});
-$('#printBtn').click(function() {
-    let customerId = $('#CustomerID').val();
-    if (!customerId) {
-        alert("Please select a customer first.");
-        return;
-    }
-    window.open('print_payment.php?CustomerID=' + customerId, '_blank');
-});
+    // when select2 selection changes, trigger same old handler
+    $('#CustomerID').on('change', function() {
+        let customerId = $(this).val();
+        if (!customerId) {
+            $('#customerHistory').html('<tr><td colspan="4" class="text-center p-3 text-gray-500">Select a customer to view history</td></tr>');
+            $('#customerBalance').html('Select a customer to view current balance...');
+            return;
+        }
 
+      $.ajax({
+        url: 'get_customer_history.php',
+        method: 'POST',
+        dataType: 'json',
+        data: { CustomerID: customerId },
+        success: function(res) {
+            $('#customerHistory').html(res.rows);
+            $('#customerBalance').html("Current Balance: <strong>" + res.balance + "</strong>");
+        },
+        error: function(xhr, status, err) {
+            console.error(err);
+            alert('History load karne mai masla aya. Console check karein.');
+        }
+      });
+    });
+
+    $('#printBtn').click(function() {
+        let customerId = $('#CustomerID').val();
+        if (!customerId) {
+            alert("Please select a customer first.");
+            return;
+        }
+        window.open('print_payment.php?CustomerID=' + customerId, '_blank');
+    });
+});
 </script>
 
 </body>
