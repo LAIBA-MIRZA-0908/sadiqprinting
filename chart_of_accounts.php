@@ -131,21 +131,55 @@ while ($row = mysqli_fetch_assoc($result)) {
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <?php foreach ($accounts as $account): ?>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?php echo htmlspecialchars($account['code']); ?></td>
+                <?php foreach ($accounts as $account): ?>
 
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?php echo htmlspecialchars($account['name']); ?></td>
-                          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?php echo htmlspecialchars($account['id']); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo htmlspecialchars($account['type']); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo htmlspecialchars($account['category']); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">Rs. <?php echo number_format($account['balance'], 2); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="account_form.php?id=<?php echo $account['id']; ?>" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                            <a href="delete_account.php?id=<?php echo $account['id']; ?>" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this account?');">Delete</a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
+    <?php
+    // Prepare a query matched by the account id
+    $stmt = $conn->prepare("SELECT * FROM accounts WHERE account_id = ?");
+    $stmt->bind_param("i", $account['id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $extraData = $result->fetch_assoc();
+    ?>
+
+    <tr>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            <?php echo htmlspecialchars($account['code']); ?>
+        </td>
+
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            <?php echo htmlspecialchars($account['name']); ?>
+        </td>
+
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            <?php echo htmlspecialchars($account['id']); ?>
+        </td>
+
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <?php echo htmlspecialchars($account['type']); ?>
+        </td>
+
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <?php echo htmlspecialchars($account['category']); ?>
+        </td>
+
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            Rs. <?php echo number_format($account['balance'], 2); ?>
+        </td>
+
+        <!-- Example of printing the extra data -->
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <?php echo isset($extraData['some_field']) ? htmlspecialchars($extraData['some_field']) : '—'; ?>
+        </td>
+
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <a href="account_form.php?id=<?php echo $account['id']; ?>" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
+            <a href="delete_account.php?id=<?php echo $account['id']; ?>" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this account?');">Delete</a>
+        </td>
+    </tr>
+
+<?php endforeach; ?>
+
                 </tbody>
             </table>
         </div>
